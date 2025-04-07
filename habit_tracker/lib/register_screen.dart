@@ -1,4 +1,9 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
+import 'package:habit_tracker/home_tracker_screen.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'login_screen.dart';
 
@@ -57,9 +62,59 @@ class _RegisterScreenState extends State<RegisterScreen> {
     });
   }
 
+  void _showToast(String message) {
+    Fluttertoast.showToast(
+      msg: message,
+      toastLength: Toast.LENGTH_SHORT,
+      gravity: ToastGravity.BOTTOM,
+      backgroundColor: Colors.red,
+      textColor: Colors.white,
+      fontSize: 16.0,
+    );
+  }
+
   void _register() async {
-    // dummy for now
-    print("registration logic here");
+    final name = _nameController.text;
+    final username = _usernameController.text;
+
+    if (username.isEmpty || name.isEmpty) {
+      _showToast('Please fill in all fields');
+      return;
+    }
+
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(
+        builder: (context) => HabitTrackerScreen(username: username),
+      ),
+    );
+  }
+
+  bool validateForm() {
+    if (_nameController.text.isEmpty || _usernameController.text.isEmpty) {
+      return false;
+    }
+    // create logic to validate form
+    return true;
+  }
+
+  Future<void> saveUserData() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    
+    // Create a dictionary containing all the registration details
+    Map<String, dynamic> userData = {
+      'name': _nameController.text,
+      'username': _usernameController.text,
+      'age': _age,
+      'country': _country,
+      'habits': selectedHabits,
+    };
+
+    // Convert the map to a JSON string
+    String jsonUserData = json.encode(userData);
+
+    // Save the JSON string to SharedPreferences
+    await prefs.setString('userData', jsonUserData);
   }
 
   @override

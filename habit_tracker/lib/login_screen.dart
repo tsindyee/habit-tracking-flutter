@@ -1,4 +1,8 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
+import 'package:habit_tracker/home_tracker_screen.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'register_screen.dart';
 
@@ -20,6 +24,59 @@ class _LoginScreenState extends State<LoginScreen> {
   void _login() {
     // The login logic goes here
     print("login logic here");
+
+    final username = _usernameController.text;
+    final password = _passwordController.text;
+
+    if (username == defaultUsername && password == defaultPassword) {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (context) => HabitTrackerScreen(username: username),
+        ),
+      );
+    }
+  }
+
+  bool validateForm() {
+    // create logic to validate form
+    if (_usernameController.text.isEmpty || _passwordController.text.isEmpty) {
+      return false;
+    }
+    return true;
+  }
+
+  Future<void> authenticateUser() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+
+    // Retrieve the stored user data JSON string
+    String? jsonUserData = prefs.getString('userData');
+
+    // Check if registration data exists
+    if (jsonUserData != null) {
+      // Decode the JSON string back into a Map
+      Map<String, dynamic> userData = json.decode(jsonUserData);
+
+      // Compare the stored username with the input from the login screen
+      if (userData['username'] == _usernameController.text) {
+        // The username exists, proceed with additional authentication logic
+        print('User authenticated successfully');
+        // Navigate to the next screen or home page
+      } else {
+        // The username does not match the stored registration data
+        print('Username does not exist. Please register first.');
+        // Optionally, show an error message to the user
+      }
+    } else {
+      // No registration data exists, prompt the user to register
+      print('No registration data found. Please register first.');
+    }
+  }
+
+  void handleLogin() {
+    if (validateForm()) {
+      authenticateUser();
+    }
   }
 
   @override
