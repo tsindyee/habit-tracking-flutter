@@ -1,14 +1,11 @@
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
-import 'package:habit_tracker/home_tracker_screen.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'habit_tracker_screen.dart';
 import 'register_screen.dart';
 
 class LoginScreen extends StatefulWidget {
-  const LoginScreen({super.key});
-
   @override
   _LoginScreenState createState() => _LoginScreenState();
 }
@@ -21,61 +18,36 @@ class _LoginScreenState extends State<LoginScreen> {
   final String defaultUsername = 'testuser';
   final String defaultPassword = 'password123';
 
-  void _login() {
-    // The login logic goes here
-    print("login logic here");
-
+  void _login() async {
     final username = _usernameController.text;
     final password = _passwordController.text;
 
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+
+    // Check against default credentials
     if (username == defaultUsername && password == defaultPassword) {
+      await prefs.setString('name', 'Test User');
+      await prefs.setString('username', 'testuser');
+      await prefs.setDouble('age', 25);
+      await prefs.setString('country', 'United States');
+
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(
           builder: (context) => HabitTrackerScreen(username: username),
         ),
       );
-    }
-  }
-
-  bool validateForm() {
-    // create logic to validate form
-    if (_usernameController.text.isEmpty || _passwordController.text.isEmpty) {
-      return false;
-    }
-    return true;
-  }
-
-  Future<void> authenticateUser() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-
-    // Retrieve the stored user data JSON string
-    String? jsonUserData = prefs.getString('userData');
-
-    // Check if registration data exists
-    if (jsonUserData != null) {
-      // Decode the JSON string back into a Map
-      Map<String, dynamic> userData = json.decode(jsonUserData);
-
-      // Compare the stored username with the input from the login screen
-      if (userData['username'] == _usernameController.text) {
-        // The username exists, proceed with additional authentication logic
-        print('User authenticated successfully');
-        // Navigate to the next screen or home page
-      } else {
-        // The username does not match the stored registration data
-        print('Username does not exist. Please register first.');
-        // Optionally, show an error message to the user
-      }
     } else {
-      // No registration data exists, prompt the user to register
-      print('No registration data found. Please register first.');
-    }
-  }
-
-  void handleLogin() {
-    if (validateForm()) {
-      authenticateUser();
+      //empty out shared preferences
+      await prefs.clear();
+      Fluttertoast.showToast(
+        msg: "The username or password was incorrect",
+        toastLength: Toast.LENGTH_SHORT,
+        gravity: ToastGravity.BOTTOM,
+        backgroundColor: Colors.red,
+        textColor: Colors.white,
+        fontSize: 16.0,
+      );
     }
   }
 
@@ -96,7 +68,7 @@ class _LoginScreenState extends State<LoginScreen> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                const Text(
+                Text(
                   'Habitt',
                   style: TextStyle(
                     fontSize: 32,
@@ -104,7 +76,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     color: Colors.white,
                   ),
                 ),
-                const SizedBox(height: 30),
+                SizedBox(height: 30),
                 Container(
                   decoration: BoxDecoration(
                     color: Colors.white,
@@ -117,12 +89,12 @@ class _LoginScreenState extends State<LoginScreen> {
                           Icon(Icons.email, color: Colors.blue.shade700),
                       hintText: 'Enter Username',
                       border: InputBorder.none,
-                      contentPadding: const EdgeInsets.symmetric(
-                          horizontal: 20, vertical: 15),
+                      contentPadding:
+                          EdgeInsets.symmetric(horizontal: 20, vertical: 15),
                     ),
                   ),
                 ),
-                const SizedBox(height: 20),
+                SizedBox(height: 20),
                 Container(
                   decoration: BoxDecoration(
                     color: Colors.white,
@@ -135,25 +107,25 @@ class _LoginScreenState extends State<LoginScreen> {
                       prefixIcon: Icon(Icons.lock, color: Colors.blue.shade700),
                       hintText: 'Enter Password',
                       border: InputBorder.none,
-                      contentPadding: const EdgeInsets.symmetric(
-                          horizontal: 20, vertical: 15),
+                      contentPadding:
+                          EdgeInsets.symmetric(horizontal: 20, vertical: 15),
                     ),
                   ),
                 ),
-                const SizedBox(height: 20),
+                SizedBox(height: 20),
                 Align(
                   alignment: Alignment.centerRight,
                   child: TextButton(
                     onPressed: () {
                       // Logic for forgot password can be added here
                     },
-                    child: const Text(
+                    child: Text(
                       'Forgot password?',
                       style: TextStyle(color: Colors.white),
                     ),
                   ),
                 ),
-                const SizedBox(height: 20),
+                SizedBox(height: 20),
                 ElevatedButton(
                   onPressed: _login,
                   style: ElevatedButton.styleFrom(
@@ -161,10 +133,9 @@ class _LoginScreenState extends State<LoginScreen> {
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(30.0),
                     ),
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 80, vertical: 15),
+                    padding: EdgeInsets.symmetric(horizontal: 80, vertical: 15),
                   ),
-                  child: const Text(
+                  child: Text(
                     'Log in',
                     style: TextStyle(
                       fontSize: 18,
@@ -173,29 +144,27 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                   ),
                 ),
-                const SizedBox(height: 20),
-                const Text(
+                SizedBox(height: 20),
+                Text(
                   'or',
                   style: TextStyle(color: Colors.white70),
                 ),
-                const SizedBox(height: 10),
+                SizedBox(height: 10),
                 OutlinedButton(
                   onPressed: () {
                     Navigator.push(
                       context,
-                      MaterialPageRoute(
-                          builder: (context) => const RegisterScreen()),
+                      MaterialPageRoute(builder: (context) => RegisterScreen()),
                     );
                   },
                   style: OutlinedButton.styleFrom(
-                    side: const BorderSide(color: Colors.white),
+                    side: BorderSide(color: Colors.white),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(30.0),
                     ),
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 70, vertical: 15),
+                    padding: EdgeInsets.symmetric(horizontal: 70, vertical: 15),
                   ),
-                  child: const Text(
+                  child: Text(
                     'Sign up',
                     style: TextStyle(color: Colors.white, fontSize: 16),
                   ),
